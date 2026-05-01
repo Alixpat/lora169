@@ -1,0 +1,22 @@
+# KiCad — fichiers de sauvegarde et caches
+*-backups/
+*.bak
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_prl
+fp-info-cache
+~*.lck
+_autosave-*
+
+# KiCad — sorties de fabrication (régénérables depuis le PCB)
+hardware/fab/
+hardware/bom/*.csv
+hardware/bom/*.html
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
