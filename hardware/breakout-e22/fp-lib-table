@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Ebyte_E22")(type "KiCad")(uri "/home/alex/Documents/lora169/hardware/libs/ebyte/footprints.pretty")(options "")(descr ""))
+)
