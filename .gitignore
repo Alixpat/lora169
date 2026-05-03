@@ -19,8 +19,8 @@ hardware/bom/*.html
 # Playwright MCP — cache navigateur
 .playwright-mcp/
 
-# Sorties OpenSCAD (régénérables depuis le .scad)
-enclosure/*.stl
+# STL combinés ou intermédiaires (les STL release box/lid sont versionnés)
+enclosure/boitier-lora169.stl
 
 # OS / éditeurs
 .DS_Store
