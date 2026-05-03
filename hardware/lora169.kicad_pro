@@ -488,7 +488,7 @@
       "netlist": "",
       "plot": "",
       "pos_files": "",
-      "specctra_dsn": "",
+      "specctra_dsn": "lora169.dsn",
       "step": "",
       "svg": "",
       "vrml": ""
@@ -610,7 +610,7 @@
   },
   "sheets": [
     [
-      "b20fa04a-1943-44cb-8637-1101b84b4a7a",
+      "091c8516-a410-4958-8974-9c60eef0a2d1",
       "Root"
     ]
   ],

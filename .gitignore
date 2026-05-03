@@ -9,9 +9,12 @@ fp-info-cache
 _autosave-*
 
 # KiCad — sorties de fabrication (régénérables depuis le PCB)
-hardware/fab/
+**/fab/
 hardware/bom/*.csv
 hardware/bom/*.html
+*-gerbers.zip
+*.dsn
+*.ses
 
 # OS / éditeurs
 .DS_Store
