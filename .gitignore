@@ -19,6 +19,9 @@ hardware/bom/*.html
 # Playwright MCP — cache navigateur
 .playwright-mcp/
 
+# Sorties OpenSCAD (régénérables depuis le .scad)
+enclosure/*.stl
+
 # OS / éditeurs
 .DS_Store
 Thumbs.db

@@ -24,12 +24,14 @@ hole_offset_y_top    = 5;   // Y depuis le bord HAUT
 hole_offset_y_bottom = 4;   // Y depuis le bord BAS (asymétrie : J2 broche 11 trop proche)
 
 // Hauteur libre nécessaire au-dessus du PCB pour breakout E22 + module enfiché
-breakout_clearance = 20;
+// 25 mm = ~14 mm pour le breakout + ~11 mm de marge pour le saisir à la main
+// et l'extraire facilement du boîtier
+breakout_clearance = 25;
 
 // Position de l'USB-C (centre, depuis le coin bas-gauche du PCB)
 usb_pos_y = 27.5;     // alignement Y avec le centre du XIAO
-usb_cutout_w = 11;    // largeur découpe (USB-C ~9 mm + jeu)
-usb_cutout_h = 5;     // hauteur découpe
+usb_cutout_w = 13;    // largeur découpe — accommode le boîtier plastique du câble
+usb_cutout_h = 8;     // hauteur découpe — accommode les câbles renforcés
 
 // SMA bulkhead — centré sur la face droite
 sma_diameter = 6.5;
@@ -38,7 +40,7 @@ sma_diameter = 6.5;
 wall_thickness  = 2;
 floor_thickness = 2;
 lid_thickness   = 2;
-inner_margin    = 3;  // jeu autour du PCB
+inner_margin    = 5;  // jeu autour du PCB sur les 4 côtés
 
 // Piliers de centrage du PCB (2 étages, sans vis)
 pillar_d_lower = 6;   // Ø étage bas (épaulement du PCB)
@@ -49,6 +51,12 @@ pillar_h_above_pcb = 1.5;  // dépassement de la partie fine au-dessus du PCB
 // Couvercle (rebord intérieur d'engagement par friction)
 lid_lip_height    = 3;     // hauteur du rebord descendant dans le boîtier
 lid_lip_clearance = 0.3;   // jeu du rebord avec les parois (impression 3D)
+
+// Ventilation du couvercle (fentes parallèles centrées)
+vent_count   = 6;          // nombre de fentes
+vent_length  = 40;         // longueur d'une fente (mm)
+vent_width   = 2;          // largeur d'une fente (mm)
+vent_spacing = 3;          // espacement entre fentes (mm)
 
 // Mode d'affichage : "box" | "lid" | "assembled" | "exploded"
 show_mode = "exploded";
@@ -69,6 +77,16 @@ pcb_z = floor_thickness + pillar_h_lower;
 
 // ---------- Modules ----------
 
+// Boîte rectangulaire à coins verticaux arrondis (rayon r en XY)
+module rounded_box(w, h, d, r) {
+    hull() {
+        for (x = [r, w - r])
+            for (y = [r, h - r])
+                translate([x, y, 0])
+                    cylinder(r = r, h = d, $fn = 48);
+    }
+}
+
 module pillar() {
     h_top = pillar_h_lower + pcb_thickness + pillar_h_above_pcb;
     union() {
@@ -84,14 +102,21 @@ module pillars() {
                 pillar();
 }
 
-// Découpe USB-C dans la paroi gauche (X = 0)
+// Découpe USB-C dans la paroi gauche (X = 0), avec coins arrondis r=1 mm
 module usb_cutout() {
+    r = 1;  // rayon des coins arrondis
     translate([
         -1,
         pcb_y + usb_pos_y - usb_cutout_w / 2,
         pcb_z + pcb_thickness - 0.5
     ])
-        cube([wall_thickness + 2, usb_cutout_w, usb_cutout_h]);
+        hull() {
+            for (cy = [r, usb_cutout_w - r])
+                for (cz = [r, usb_cutout_h - r])
+                    translate([0, cy, cz])
+                        rotate([0, 90, 0])
+                            cylinder(h = wall_thickness + 2, r = r, $fn = 32);
+        }
 }
 
 // Trou SMA dans la paroi droite — centré
@@ -101,14 +126,14 @@ module sma_hole() {
             cylinder(h = wall_thickness + 2, d = sma_diameter, $fn = 48);
 }
 
-// Boîtier (cuvette ouverte sur le dessus)
+// Boîtier (cuvette ouverte sur le dessus, arêtes verticales arrondies)
 module box() {
     difference() {
-        cube([outer_width, outer_height, outer_depth]);
+        rounded_box(outer_width, outer_height, outer_depth, 2);
 
-        // Creux intérieur
+        // Creux intérieur (arêtes verticales légèrement arrondies aussi)
         translate([wall_thickness, wall_thickness, floor_thickness])
-            cube([inner_width, inner_height, inner_depth + 1]);
+            rounded_box(inner_width, inner_height, inner_depth + 1, 1);
 
         usb_cutout();
         sma_hole();
@@ -116,23 +141,45 @@ module box() {
     pillars();
 }
 
-// Couvercle plat avec rebord intérieur d'engagement par friction
-module lid() {
-    union() {
-        // Plaque supérieure : couvre toute la surface du boîtier
-        cube([outer_width, outer_height, lid_thickness]);
+// Fentes de ventilation centrées sur le couvercle
+module vents() {
+    block_h = vent_count * vent_width + (vent_count - 1) * vent_spacing;
+    y_start = (outer_height - block_h) / 2;
+    x_start = (outer_width - vent_length) / 2;
 
-        // Rebord intérieur qui descend dans le creux par friction
+    for (i = [0 : vent_count - 1])
         translate([
-            wall_thickness + lid_lip_clearance,
-            wall_thickness + lid_lip_clearance,
-            -lid_lip_height
+            x_start,
+            y_start + i * (vent_width + vent_spacing),
+            -1
         ])
-            cube([
-                inner_width - 2 * lid_lip_clearance,
-                inner_height - 2 * lid_lip_clearance,
-                lid_lip_height
-            ]);
+            rounded_box(vent_length, vent_width, lid_thickness + 2, 0.5);
+}
+
+// Couvercle plat avec rebord intérieur d'engagement par friction
+// Arêtes verticales arrondies + fentes de ventilation centrées
+module lid() {
+    difference() {
+        union() {
+            // Plaque supérieure : couvre toute la surface du boîtier
+            rounded_box(outer_width, outer_height, lid_thickness, 2);
+
+            // Rebord intérieur qui descend dans le creux par friction
+            translate([
+                wall_thickness + lid_lip_clearance,
+                wall_thickness + lid_lip_clearance,
+                -lid_lip_height
+            ])
+                rounded_box(
+                    inner_width - 2 * lid_lip_clearance,
+                    inner_height - 2 * lid_lip_clearance,
+                    lid_lip_height,
+                    1
+                );
+        }
+
+        // Soustraction des fentes de ventilation
+        vents();
     }
 }
 
