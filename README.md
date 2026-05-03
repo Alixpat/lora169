@@ -56,7 +56,8 @@ cd fab && python3 -m zipfile -c ../lora169-gerbers.zip *.g* *.drl
 |------------|------------------------------------|-----|------------|-----------:|----------------------------:|----------:|--------:|
 | 2026-05-01 | Seeed XIAO ESP32-S3                | 2   | AliExpress (Seeedstudio AI Hardware Store) | 15,49 € | 4,41 € | −0,87 € | 19,03 € |
 | 2026-05-01 | Ebyte E22-170M30S                  | 2   | AliExpress (Boutique officielle EBYTE) | 13,78 € | 4,17 € | −0,77 € | 17,18 € |
-| 2026-05-03 | Antenne Ebyte TX170-JKD-20         | 6   | AliExpress (CDSENET) | — | — | — | 13,30 € |
 | 2026-05-03 | PCB carte mère + breakout + 2 boîtiers 3D (groupé W2026050322580094) | 5+5+2+2 | JLCPCB / JLC3DP | 14,64 € | 15,08 € | −8,52 € | 21,20 € |
 
-**Total engagé : 70,71 €**
+**Total engagé : 57,41 €**
+
+À commander : antenne Ebyte TX170-JKD-20 (CDSENET, ~13 €), condensateurs SMD 0805 100 nF + 10 µF (Supplier of electronic components, ~2 €), pin headers + embases femelles 1×40 (~2 €). Pigtail U.FL → SMA femelle bulkhead disponible en stock.
