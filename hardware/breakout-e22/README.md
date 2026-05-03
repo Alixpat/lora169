@@ -12,32 +12,21 @@ Design propre fait pour ce projet, avec :
 - 1× module E22-xxxM30S (mécanique commune à 170/400/900 MHz)
 - 2× condensateurs de découplage 100 nF + 10 µF (céramique X7R 0805)
   au plus près des pins VCC, pour absorber le pic TX 30 dBm (~620 mA)
-  selon les designs publics éprouvés (cf. Inspiration ci-dessous)
 - 2× pin headers 1×11 broches au pas 2,54 mm sur les bords longs
 - VCC alimenté en 5 V depuis VBUS du XIAO côté carte mère, pour
   permettre la pleine puissance 30 dBm hardware
 - Plan de masse continu sur la face arrière
 
-## Inspiration (créditée mais non réutilisée directement)
+## Caractéristiques techniques
 
-Avant de partir from scratch, on avait évalué le design open hardware
-de [NanoVHF/Meshtastic-DIY](https://github.com/NanoVHF/Meshtastic-DIY)
-(`PCB/ESP-32-devkit_EBYTE-E22/EBYTE-E22-adapter-board/`, format Eagle
-9.6.2). Sources d'origine conservées dans `upstream-eagle/` à titre de
-référence pour comparaison de l'empreinte et du placement des pads.
-
-Raisons du choix de repartir from scratch plutôt que d'adapter ce design :
-
-1. Repo NanoVHF sans licence déclarée → propriété intellectuelle floue
-   incompatible avec un usage opérationnel ou une publication propre.
-2. Design pensé pour un sandwich avec ESP32 dev kit complet (52 broches
-   sur 4 pin headers), surdimensionné pour notre besoin (22 broches
-   utiles + alim).
-3. Pas de découplage VCC (les condos sont à mettre côté carte mère dans
-   leur architecture), ce qui n'est pas adapté à notre alim 5 V.
-4. Notre empreinte E22 est déjà vendorisée dans `hardware/libs/ebyte/`
-   (issue de la MR officielle KiCad), donc directement utilisable sans
-   dépendre des libs de NanoVHF.
+- Format PCB : **40,6 × 46,3 mm** (compact, à peine plus large que
+  le module E22 lui-même de 24 × 38,5 mm)
+- Espacement entre les deux pin headers J1/J2 : **32,1 mm** centre à
+  centre — à respecter sur la carte mère (embases femelles 1×11)
+- Pistes signal en 0,2 mm, piste alim +5V en 0,4 mm pour absorber le
+  pic 620 mA en TX 30 dBm
+- Pads GND en pleine connexion à la zone GND (sans thermal relief)
+  pour minimiser l'inductance de retour
 
 ## Valeurs de découplage — sources
 
@@ -49,7 +38,7 @@ de plusieurs designs publics éprouvés à 30 dBm voire 33 dBm :
 - [KaliAssistant/MeshAdv_piHAT_v2](https://github.com/KaliAssistant/MeshAdv_piHAT_v2) :
   E22-900M33S (33 dBm = 2 W !), 10 µF + 100 nF répartis sur les rails
 - [andrew-moroz/xiao-ble-pcb](https://github.com/andrew-moroz/xiao-ble-pcb) :
-  E22-900M30S, MiniBoost 5V + 100 µF buffering en sortie
+  E22-900M30S, MiniBoost 5 V + 100 µF buffering en sortie
 
 Ni la datasheet E22 ni les notes Semtech (AN1200.37, AN1200.40) ne
 donnent de valeurs explicites pour le découplage externe d'un module
@@ -57,10 +46,27 @@ E22 fini — la datasheet recommande juste un « external ceramic filter
 capacitor ». Les 100 nF + 10 µF sont donc retenus comme convention
 d'industrie validée empiriquement.
 
-## À faire
+## Mapping J1 / J2 (côté carte mère)
 
-- [ ] Créer le projet KiCad `breakout-e22.kicad_pro`
-- [ ] Schéma : E22 + C1/C2 + J1/J2 + power flags
-- [ ] PCB compact ~25 × 42 mm avec plan de masse continu
-- [ ] Mesurer précisément l'espacement des pin headers pour matching
-      avec la carte mère
+| Pin header | Broche | Signal   | Pad E22 |
+|------------|--------|----------|---------|
+| J2         | 1-5, 11| GND      | 1-5, 11 |
+| J2         | 6      | RXEN     | 6       |
+| J2         | 7      | TXEN     | 7       |
+| J2         | 8      | NC (DIO2)| 8       |
+| J2         | 9-10   | +5V (VCC)| 9-10    |
+| J1         | 1, 9, 11| GND     | 12, 20, 22 |
+| J1         | 2      | DIO1     | 13      |
+| J1         | 3      | BUSY     | 14      |
+| J1         | 4      | NRST     | 15      |
+| J1         | 5      | MISO     | 16      |
+| J1         | 6      | MOSI     | 17      |
+| J1         | 7      | SCK      | 18      |
+| J1         | 8      | NSS      | 19      |
+| J1         | 10     | NC (ANT) | 21 (sortie RF, non utilisée en IPEX) |
+
+## Statut
+
+- DRC : 0 erreur, 0 unconnected
+- Gerbers générés : `breakout-e22-gerbers.zip`
+- Prêt à fabriquer chez JLCPCB / PCBWay

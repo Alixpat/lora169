@@ -16,6 +16,9 @@ hardware/bom/*.html
 *.dsn
 *.ses
 
+# Playwright MCP — cache navigateur
+.playwright-mcp/
+
 # OS / éditeurs
 .DS_Store
 Thumbs.db
